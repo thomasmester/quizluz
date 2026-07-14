@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Rebuscado 💗</title>
+<style>
+  :root{
+    --pink-1:#ffe3ef;
+    --pink-2:#ffc2dd;
+    --pink-3:#ff8fc7;
+    --purple-1:#c8a2ff;
+    --purple-2:#9b6bff;
+    --lilac:#f3e8ff;
+    --ink:#3b2545;
+    --ink-soft:#6e5578;
+    --white:#fffaff;
+    --good:#5fd39a;
+    --bad:#ff6b8b;
+    --shadow: 0 10px 30px rgba(155,64,164,0.18);
+  }
+
+  *{box-sizing:border-box;}
+
+  body{
+    margin:0;
+    min-height:100vh;
+    font-family:'Segoe UI', 'Trebuchet MS', 'Poppins', sans-serif;
+    background: radial-gradient(circle at 15% 10%, #ffd6ec 0%, transparent 45%),
+                radial-gradient(circle at 85% 15%, #e5cfff 0%, transparent 45%),
+                radial-gradient(circle at 50% 90%, #ffd6ec 0%, transparent 50%),
+                linear-gradient(160deg, #fff0f7 0%, #f6ecff 50%, #fdeefc 100%);
+    color:var(--ink);
+    display:flex;
+    justify-content:center;
+    padding:32px 16px;
+    position:relative;
+    overflow-x:hidden;
+  }
+
+  body::before{
+    content:"✨";
+    position:fixed;
+    top:8%; left:6%;
+    font-size:28px;
+    opacity:0.5;
+    animation: float 6s ease-in-out infinite;
+  }
+  body::after{
+    content:"🌸";
+    position:fixed;
+    bottom:8%; right:8%;
+    font-size:34px;
+    opacity:0.55;
+    animation: float 7s ease-in-out infinite reverse;
+  }
+
+  @keyframes float{
+    0%,100%{ transform: translateY(0px) rotate(0deg); }
+    50%{ transform: translateY(-18px) rotate(8deg); }
+  }
+
+  .app{
+    width:100%;
+    max-width:680px;
+  }
+
+  .card{
+    background: var(--white);
+    border-radius:28px;
+    box-shadow: var(--shadow);
+    padding:36px 32px;
+    position:relative;
+    border: 1px solid #ffffff;
+  }
+
+  .card::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    border-radius:28px;
+    padding:2px;
+    background: linear-gradient(135deg, var(--pink-3), var(--purple-1));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events:none;
+    opacity:0.6;
+  }
+
+  h1{
+    font-size:1.9rem;
+    margin:0 0 6px;
+    text-align:center;
+    background: linear-gradient(90deg, var(--purple-2), var(--pink-3));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    font-weight:800;
+  }
+
+  .subtitle{
+    text-align:center;
+    color:var(--ink-soft);
+    margin-bottom:22px;
+    font-size:0.98rem;
+  }
+
+  /* START SCREEN */
+  .topics{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    justify-content:center;
+    margin:18px 0 26px;
+  }
+  .topic-chip{
+    background: var(--lilac);
+    border:1px solid var(--pink-2);
+    color:var(--ink-soft);
+    padding:6px 14px;
+    border-radius:999px;
+    font-size:0.85rem;
+    font-weight:600;
+  }
+
+  button.primary{
+    display:block;
+    width:100%;
+    padding:14px 20px;
+    border:none;
+    border-radius:16px;
+    background: linear-gradient(135deg, var(--pink-3), var(--purple-2));
+    color:white;
+    font-size:1.05rem;
+    font-weight:700;
+    cursor:pointer;
+    box-shadow: 0 8px 18px rgba(199,82,175,0.35);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    letter-spacing:0.3px;
+  }
+  button.primary:hover{
+    transform: translateY(-2px);
+    box-shadow: 0 12px 22px rgba(199,82,175,0.45);
+  }
+  button.primary:active{ transform: translateY(0px); }
+  button.primary:disabled{
+    opacity:0.5;
+    cursor:not-allowed;
+    transform:none;
+    box-shadow:none;
+  }
+
+  button.ghost{
+    display:block;
+    width:100%;
+    margin-top:12px;
+    padding:12px 20px;
+    border-radius:16px;
+    border:2px solid var(--pink-2);
+    background:transparent;
+    color:var(--ink);
+    font-weight:700;
+    cursor:pointer;
+  }
+
+  /* QUIZ SCREEN */
+  .progress-wrap{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:18px;
+  }
+  .progress-bar{
+    flex:1;
+    height:10px;
+    background: var(--lilac);
+    border-radius:999px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    background: linear-gradient(90deg, var(--pink-3), var(--purple-2));
+    border-radius:999px;
+    transition: width 0.35s ease;
+  }
+  .progress-label{
+    font-size:0.82rem;
+    color:var(--ink-soft);
+    font-weight:700;
+    white-space:nowrap;
+  }
+
+  .tag{
+    display:inline-block;
+    padding:6px 14px;
+    border-radius:999px;
+    font-size:0.8rem;
+    font-weight:800;
+    letter-spacing:0.3px;
+    color:white;
+    margin-bottom:14px;
+  }
+
+  .question-text{
+    font-size:1.2rem;
+    font-weight:700;
+    margin-bottom:20px;
+    line-height:1.4;
+    color:var(--ink);
+  }
+
+  .options{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    margin-bottom:8px;
+  }
+
+  .option{
+    text-align:left;
+    padding:13px 16px;
+    border-radius:14px;
+    border:2px solid var(--lilac);
+    background: #fffdff;
+    cursor:pointer;
+    font-size:0.98rem;
+    color:var(--ink);
+    transition: all 0.15s ease;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .option:hover:not(.locked){
+    border-color: var(--pink-3);
+    background: #fff5fa;
+  }
+  .option .bullet{
+    width:22px; height:22px;
+    border-radius:50%;
+    border:2px solid var(--purple-1);
+    flex:none;
+    display:flex; align-items:center; justify-content:center;
+    font-size:0.7rem;
+    font-weight:800;
+    color:var(--purple-2);
+  }
+  .option.correct{
+    border-color: var(--good);
+    background: #eafff4;
+  }
+  .option.correct .bullet{ border-color:var(--good); color:var(--good); background:#d6fbe9; }
+  .option.wrong{
+    border-color: var(--bad);
+    background: #fff0f3;
+  }
+  .option.wrong .bullet{ border-color:var(--bad); color:var(--bad); background:#ffe1e7;}
+  .option.locked{ cursor:default; }
+
+  .feedback{
+    margin-top:14px;
+    padding:12px 16px;
+    border-radius:14px;
+    font-weight:700;
+    font-size:0.95rem;
+    display:none;
+  }
+  .feedback.show{ display:block; }
+  .feedback.good{ background:#eafff4; color:#1f8b5c; }
+  .feedback.bad{ background:#fff0f3; color:#c43a5c; }
+
+  .nav-row{
+    margin-top:22px;
+  }
+
+  /* RESULTS SCREEN */
+  .score-hero{
+    text-align:center;
+    margin-bottom:22px;
+  }
+  .score-ring{
+    width:150px; height:150px;
+    border-radius:50%;
+    margin:0 auto 14px;
+    display:flex; align-items:center; justify-content:center;
+    flex-direction:column;
+    background: conic-gradient(var(--purple-2) calc(var(--pct)*1%), var(--lilac) 0);
+    position:relative;
+  }
+  .score-ring::before{
+    content:"";
+    position:absolute;
+    width:118px; height:118px;
+    border-radius:50%;
+    background: var(--white);
+  }
+  .score-ring .pct{
+    position:relative;
+    font-size:1.7rem;
+    font-weight:800;
+    color:var(--purple-2);
+  }
+  .score-ring .lbl{
+    position:relative;
+    font-size:0.75rem;
+    color:var(--ink-soft);
+    font-weight:700;
+  }
+
+  .score-msg{
+    font-size:1.05rem;
+    font-weight:700;
+    color:var(--ink);
+    margin-bottom:4px;
+  }
+  .score-sub{
+    color:var(--ink-soft);
+    font-size:0.9rem;
+  }
+
+  .stats-grid{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap:10px;
+    margin: 20px 0;
+  }
+  .stat-box{
+    background: var(--lilac);
+    border-radius:16px;
+    padding:14px 8px;
+    text-align:center;
+  }
+  .stat-box .num{
+    font-size:1.3rem;
+    font-weight:800;
+    color:var(--purple-2);
+  }
+  .stat-box .lbl{
+    font-size:0.72rem;
+    color:var(--ink-soft);
+    font-weight:700;
+    margin-top:2px;
+  }
+
+  .cat-stats{
+    margin-top:8px;
+  }
+  .cat-stats h3{
+    font-size:0.95rem;
+    color:var(--ink);
+    margin:18px 0 10px;
+  }
+  .cat-row{
+    margin-bottom:12px;
+  }
+  .cat-row-top{
+    display:flex;
+    justify-content:space-between;
+    font-size:0.85rem;
+    font-weight:700;
+    margin-bottom:4px;
+    color:var(--ink);
+  }
+  .cat-row-top .tagname{
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .cat-bar-bg{
+    height:9px;
+    border-radius:999px;
+    background: var(--lilac);
+    overflow:hidden;
+  }
+  .cat-bar-fill{
+    height:100%;
+    border-radius:999px;
+  }
+
+  .review-toggle{
+    margin-top:22px;
+    text-align:center;
+  }
+  .review-toggle a{
+    color:var(--purple-2);
+    font-weight:700;
+    cursor:pointer;
+    font-size:0.9rem;
+    text-decoration:underline;
+  }
+
+  .review-list{
+    margin-top:16px;
+    display:none;
+    flex-direction:column;
+    gap:12px;
+  }
+  .review-list.show{ display:flex; }
+  .review-item{
+    border-radius:14px;
+    padding:12px 14px;
+    border-left:5px solid var(--lilac);
+    background:#fdf9ff;
+    font-size:0.88rem;
+  }
+  .review-item.ok{ border-left-color:var(--good); }
+  .review-item.no{ border-left-color:var(--bad); }
+  .review-item .q{ font-weight:700; margin-bottom:4px; }
+  .review-item .a{ color:var(--ink-soft); }
+
+  .hidden{ display:none !important; }
+
+  @media (max-width:480px){
+    .card{ padding:26px 18px; }
+    h1{ font-size:1.5rem; }
+    .stats-grid{ grid-template-columns: repeat(3,1fr); gap:6px; }
+    .stat-box{ padding:10px 4px; }
+    .stat-box .num{ font-size:1.05rem; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="card">
+
+    <!-- START SCREEN -->
+    <div id="screen-start">
+      <h1>Quiz Rebuscado 💗</h1>
+      <p class="subtitle">42 preguntas trampositas de tus temáticas favoritas. ¿Cuánto sabés realmente?</p>
+      <div class="topics">
+        <span class="topic-chip">🎮 Pokémon</span>
+        <span class="topic-chip">📺 El Rubius</span>
+        <span class="topic-chip">🐺 Omegaverse</span>
+        <span class="topic-chip">🌀 Jujutsu Kaisen</span>
+        <span class="topic-chip">🤖 Cyberpunk Edgerunners</span>
+        <span class="topic-chip">🍥 Naruto</span>
+      </div>
+      <button class="primary" id="btn-start">Empezar el quiz ✨</button>
+    </div>
+
+    <!-- QUIZ SCREEN -->
+    <div id="screen-quiz" class="hidden">
+      <div class="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="progress-label" id="progress-label">1 / 42</div>
+      </div>
+      <span class="tag" id="question-tag"></span>
+      <div class="question-text" id="question-text"></div>
+      <div class="options" id="options-wrap"></div>
+      <div class="feedback" id="feedback"></div>
+      <div class="nav-row">
+        <button class="primary" id="btn-next" disabled>Siguiente →</button>
+      </div>
+    </div>
+
+    <!-- RESULTS SCREEN -->
+    <div id="screen-results" class="hidden">
+      <h1>¡Resultados! 🎉</h1>
+      <div class="score-hero">
+        <div class="score-ring" id="score-ring" style="--pct:0;">
+          <div class="pct" id="score-pct">0%</div>
+          <div class="lbl">acertadas</div>
+        </div>
+        <div class="score-msg" id="score-msg"></div>
+        <div class="score-sub" id="score-sub"></div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-box"><div class="num" id="stat-correct">0</div><div class="lbl">Correctas</div></div>
+        <div class="stat-box"><div class="num" id="stat-wrong">0</div><div class="lbl">Incorrectas</div></div>
+        <div class="stat-box"><div class="num" id="stat-time">0s</div><div class="lbl">Tiempo</div></div>
+      </div>
+
+      <div class="cat-stats">
+        <h3>Resultado por temática</h3>
+        <div id="cat-stats-list"></div>
+      </div>
+
+      <div class="review-toggle"><a id="toggle-review">Ver repaso de todas las preguntas ▾</a></div>
+      <div class="review-list" id="review-list"></div>
+
+      <button class="ghost" id="btn-restart">Volver a intentar 🔄</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const CATEGORIES = {
+  pokemon:    { name: "Pokémon",              emoji: "🎮", color: "#3b6bd6" },
+  rubius:     { name: "Lore de El Rubius",    emoji: "📺", color: "#e0577a" },
+  omegaverse: { name: "Omegaverse",           emoji: "🐺", color: "#8a5bd6" },
+  jjk:        { name: "Jujutsu Kaisen",       emoji: "🌀", color: "#1f8b5c" },
+  cyberpunk:  { name: "Cyberpunk: Edgerunners", emoji: "🤖", color: "#e0a020" },
+  naruto:     { name: "Naruto",               emoji: "🍥", color: "#e0692c" },
+};
+
+const QUESTIONS = [
+  // ---- POKÉMON ----
+  { cat:"pokemon", type:"mc", q:"¿Cuál es el número de Pokédex Nacional de Mew?", opts:["150","151","152","249"], correct:1 },
+  { cat:"pokemon", type:"vf", q:"Mewtwo fue creado a partir de fósiles de Mew descubiertos en Kanto.", correct:false },
+  { cat:"pokemon", type:"mc", q:"¿Qué tipo de movimiento es \"Terremoto\"?", opts:["Tierra","Roca","Lucha","Acero"], correct:0 },
+  { cat:"pokemon", type:"vf", q:"Ash ganó oficialmente su primera Liga Pokémon en la Liga de Alola.", correct:true },
+  { cat:"pokemon", type:"mc", q:"¿Qué Pokémon legendario representa el tiempo en la mitología de Sinnoh?", opts:["Dialga","Palkia","Giratina","Darkrai"], correct:0 },
+  { cat:"pokemon", type:"vf", q:"Todos los Pokémon Legendarios pueden criarse normalmente en la Guardería para obtener huevos.", correct:false },
+  { cat:"pokemon", type:"mc", q:"Desde la 6ª generación, ¿a qué tipo son débiles los Pokémon Dragón además de Hielo y Dragón?", opts:["Hada","Fuego","Agua","Eléctrico"], correct:0 },
+
+  // ---- RUBIUS ----
+  { cat:"rubius", type:"mc", q:"¿En qué ciudad alemana nació Rubén Doblas Gundersen?", opts:["Mannheim","Berlín","Múnich","Hamburgo"], correct:0 },
+  { cat:"rubius", type:"vf", q:"El apellido \"Gundersen\" es de origen alemán, heredado de su padre.", correct:false },
+  { cat:"rubius", type:"mc", q:"¿Cómo se titula la novela de fantasía que escribió?", opts:["El Juego de Marck Register","La Guerra de los Memes","Mundo Virtual","El Código Rubius"], correct:0 },
+  { cat:"rubius", type:"vf", q:"Rubius perdió su combate de boxeo contra Gaspi en La Velada del Año 2.", correct:false },
+  { cat:"rubius", type:"mc", q:"¿Cómo se llamó la icónica serie de supervivencia en Minecraft junto a Vegetta777?", opts:["Survival Island","Fénix","SkyWars","Islas Encantadas"], correct:0 },
+  { cat:"rubius", type:"vf", q:"\"elrubiusOMG\" fue el único canal de YouTube que tuvo Rubius.", correct:false },
+  { cat:"rubius", type:"mc", q:"¿En qué año nació Rubén Doblas Gundersen?", opts:["1988","1990","1992","1994"], correct:1 },
+
+  // ---- OMEGAVERSE ----
+  { cat:"omegaverse", type:"vf", q:"Los Betas representan el punto medio, sin rasgos extremos de Alfa u Omega.", correct:true },
+  { cat:"omegaverse", type:"mc", q:"¿Cómo se llama el vínculo permanente que se forma al marcarse mutuamente?", opts:["Vínculo de por vida (mate bond)","Contrato","Fusión","Sincronización"], correct:0 },
+  { cat:"omegaverse", type:"vf", q:"Los Alfas experimentan el \"celo\" (heat), mientras que los Omegas atraviesan el \"rut\".", correct:false },
+  { cat:"omegaverse", type:"mc", q:"¿Cómo se llaman los medicamentos que ocultan el aroma y suprimen el celo?", opts:["Supresores","Bloqueadores","Inhibidores","Neutralizantes"], correct:0 },
+  { cat:"omegaverse", type:"vf", q:"Las glándulas olfativas de apareamiento suelen ubicarse en las muñecas, nunca en el cuello.", correct:false },
+  { cat:"omegaverse", type:"mc", q:"¿Qué palabra describe el momento en que un adolescente manifiesta por primera vez su dinámica?", opts:["Presentación","Despertar","Manifestación","Transición"], correct:0 },
+  { cat:"omegaverse", type:"vf", q:"El Omegaverse surgió originalmente en la comunidad de fans de la serie Supernatural.", correct:true },
+
+  // ---- JUJUTSU KAISEN ----
+  { cat:"jjk", type:"mc", q:"¿Cómo se llama el Dominio Expandido de Gojo Satoru?", opts:["Unlimited Void","Malleable Shrine","Chimera Shadow Garden","Coffin of the Iron Mountain"], correct:0 },
+  { cat:"jjk", type:"vf", q:"Sukuna, en vida, fue un civil común sin ninguna habilidad de hechicería.", correct:false },
+  { cat:"jjk", type:"mc", q:"¿Cuál es la maldición vinculada a la amiga de infancia de Yuta Okkotsu?", opts:["Rika Orimoto","Nobara","Mai Zenin","Uraume"], correct:0 },
+  { cat:"jjk", type:"vf", q:"Mahito puede manipular libremente las almas gracias a su técnica \"Idle Transfiguration\".", correct:true },
+  { cat:"jjk", type:"mc", q:"Antes de ser hechicero, ¿de qué trabajaba Nanami Kento?", opts:["Oficinista (salaryman)","Profesor","Policía","Chef"], correct:0 },
+  { cat:"jjk", type:"vf", q:"El Grado Especial es un rango inferior al Grado 1 en la clasificación de hechiceros.", correct:false },
+  { cat:"jjk", type:"mc", q:"¿Quién habita dentro de Yuji Itadori tras comer el dedo?", opts:["Sukuna","Mahito","Jogo","Hanami"], correct:0 },
+
+  // ---- CYBERPUNK EDGERUNNERS ----
+  { cat:"cyberpunk", type:"mc", q:"¿Qué implante permite a David ralentizar su percepción del tiempo en combate?", opts:["Sandevistan","Kerenzikov","Berserk","Mantis Blades"], correct:0 },
+  { cat:"cyberpunk", type:"vf", q:"Rebecca y Pilar no tienen ninguna relación familiar entre sí.", correct:false },
+  { cat:"cyberpunk", type:"mc", q:"¿Cómo se llama el fixer que consigue trabajos para el equipo?", opts:["Faraday","Wakako","Rogue","Dexter DeShawn"], correct:0 },
+  { cat:"cyberpunk", type:"vf", q:"Adam Smasher trabaja como mercenario independiente, sin lealtad a ninguna corporación.", correct:false },
+  { cat:"cyberpunk", type:"mc", q:"¿A qué lugar sueña viajar Lucy para escapar de Night City?", opts:["La Luna","Europa","Alemania","Mar del Norte"], correct:0 },
+  { cat:"cyberpunk", type:"vf", q:"La madre de David muere de vejez, por causas naturales, al inicio de la serie.", correct:false },
+  { cat:"cyberpunk", type:"mc", q:"¿Quién es el líder del grupo de edgerunners al que se une David?", opts:["Maine","Kiwi","Dorio","Falco"], correct:0 },
+
+  // ---- NARUTO ----
+  { cat:"naruto", type:"mc", q:"¿Qué técnica prohibida, creada por Orochimaru, reanima a los muertos como soldados?", opts:["Edo Tensei","Kuchiyose","Genjutsu","Rasengan"], correct:0 },
+  { cat:"naruto", type:"vf", q:"El Byakugan pertenece al clan Uchiha, mientras que el Sharingan pertenece al clan Hyuga.", correct:false },
+  { cat:"naruto", type:"mc", q:"¿Cómo se llama el grupo criminal que persigue a los Jinchūriki?", opts:["Akatsuki","Raíz (Ne)","ANBU","Los Siete Espadachines"], correct:0 },
+  { cat:"naruto", type:"vf", q:"Itachi asesinó a su clan por decisión personal, sin relación alguna con Konoha.", correct:false },
+  { cat:"naruto", type:"mc", q:"¿Cuál es el sello final que mantiene a Kurama dentro de Naruto?", opts:["Sello de los Ocho Trigramas","Sello de las Cuatro Almas","Sello del Loto","Sello de la Serpiente"], correct:0 },
+  { cat:"naruto", type:"vf", q:"Jiraiya, Tsunade y Orochimaru son conocidos como los tres Sannin legendarios de Konoha.", correct:true },
+  { cat:"naruto", type:"mc", q:"¿Quién sella al Kyūbi dentro de Naruto la noche de su nacimiento?", opts:["Minato Namikaze","Hiruzen Sarutobi","Jiraiya","Kakashi"], correct:0 },
+];
+
+// Normalize VF questions to have opts/correct index like MC
+QUESTIONS.forEach(q => {
+  if (q.type === "vf") {
+    q.opts = ["Verdadero", "Falso"];
+    q.correct = q.correct ? 0 : 1;
+  }
+});
+
+let current = 0;
+let answers = []; // { picked, correct, isCorrect }
+let locked = false;
+let startTime = null;
+
+const screenStart = document.getElementById("screen-start");
+const screenQuiz = document.getElementById("screen-quiz");
+const screenResults = document.getElementById("screen-results");
+
+const progressFill = document.getElementById("progress-fill");
+const progressLabel = document.getElementById("progress-label");
+const questionTag = document.getElementById("question-tag");
+const questionText = document.getElementById("question-text");
+const optionsWrap = document.getElementById("options-wrap");
+const feedback = document.getElementById("feedback");
+const btnNext = document.getElementById("btn-next");
+
+document.getElementById("btn-start").addEventListener("click", () => {
+  screenStart.classList.add("hidden");
+  screenQuiz.classList.remove("hidden");
+  startTime = Date.now();
+  renderQuestion();
+});
+
+btnNext.addEventListener("click", () => {
+  current++;
+  if (current >= QUESTIONS.length) {
+    showResults();
+  } else {
+    renderQuestion();
+  }
+});
+
+document.getElementById("btn-restart").addEventListener("click", () => {
+  current = 0;
+  answers = [];
+  locked = false;
+  screenResults.classList.add("hidden");
+  screenStart.classList.remove("hidden");
+  document.getElementById("review-list").classList.remove("show");
+  document.getElementById("toggle-review").textContent = "Ver repaso de todas las preguntas ▾";
+});
+
+document.getElementById("toggle-review").addEventListener("click", () => {
+  const list = document.getElementById("review-list");
+  const link = document.getElementById("toggle-review");
+  list.classList.toggle("show");
+  link.textContent = list.classList.contains("show")
+    ? "Ocultar repaso ▴"
+    : "Ver repaso de todas las preguntas ▾";
+});
+
+function renderQuestion(){
+  locked = false;
+  btnNext.disabled = true;
+  btnNext.textContent = current === QUESTIONS.length - 1 ? "Ver resultados 🎀" : "Siguiente →";
+
+  const q = QUESTIONS[current];
+  const cat = CATEGORIES[q.cat];
+
+  progressFill.style.width = ((current) / QUESTIONS.length * 100) + "%";
+  progressLabel.textContent = (current + 1) + " / " + QUESTIONS.length;
+
+  questionTag.textContent = cat.emoji + " " + cat.name;
+  questionTag.style.background = cat.color;
+
+  questionText.textContent = q.q;
+
+  feedback.className = "feedback";
+  feedback.textContent = "";
+
+  optionsWrap.innerHTML = "";
+  const letters = ["A","B","C","D"];
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement("button");
+    btn.className = "option";
+    btn.innerHTML = '<span class="bullet">' + letters[i] + '</span><span>' + opt + '</span>';
+    btn.addEventListener("click", () => selectOption(i));
+    optionsWrap.appendChild(btn);
+  });
+}
+
+function selectOption(i){
+  if (locked) return;
+  locked = true;
+
+  const q = QUESTIONS[current];
+  const isCorrect = i === q.correct;
+
+  answers.push({ cat: q.cat, isCorrect, picked: i, correctIdx: q.correct, question: q.q, opts: q.opts });
+
+  const optionEls = optionsWrap.querySelectorAll(".option");
+  optionEls.forEach((el, idx) => {
+    el.classList.add("locked");
+    if (idx === q.correct) el.classList.add("correct");
+    else if (idx === i) el.classList.add("wrong");
+  });
+
+  feedback.classList.add("show");
+  if (isCorrect) {
+    feedback.classList.add("good");
+    feedback.textContent = "¡Correcto! 💖";
+  } else {
+    feedback.classList.add("bad");
+    feedback.textContent = "Ups, la correcta era: " + q.opts[q.correct];
+  }
+
+  btnNext.disabled = false;
+}
+
+function showResults(){
+  screenQuiz.classList.add("hidden");
+  screenResults.classList.remove("hidden");
+
+  const total = QUESTIONS.length;
+  const correctCount = answers.filter(a => a.isCorrect).length;
+  const wrongCount = total - correctCount;
+  const pct = Math.round((correctCount / total) * 100);
+
+  const elapsedSec = Math.round((Date.now() - startTime) / 1000);
+  const mins = Math.floor(elapsedSec / 60);
+  const secs = elapsedSec % 60;
+  const timeStr = mins > 0 ? (mins + "m " + secs + "s") : (secs + "s");
+
+  document.getElementById("score-ring").style.setProperty("--pct", pct);
+  document.getElementById("score-pct").textContent = pct + "%";
+  document.getElementById("stat-correct").textContent = correctCount;
+  document.getElementById("stat-wrong").textContent = wrongCount;
+  document.getElementById("stat-time").textContent = timeStr;
+
+  let msg, sub;
+  if (pct === 100) { msg = "¡Perfecto! Sos una experta absoluta 👑"; sub = "No te falló ni una sola pregunta rebuscada."; }
+  else if (pct >= 85) { msg = "¡Nivel crack! 💜"; sub = "Casi perfecto, muy pocas se te escaparon."; }
+  else if (pct >= 65) { msg = "¡Muy bien! Sabés bastante 🌸"; sub = "Buen dominio general de los temas."; }
+  else if (pct >= 45) { msg = "Nada mal, pero hay para repasar 🍥"; sub = "Le pegaste a la mitad, ¡seguí practicando!"; }
+  else { msg = "Uy, esto estuvo difícil 🙈"; sub = "Las preguntas eran bien tramposas, ¡probá de nuevo!"; }
+
+  document.getElementById("score-msg").textContent = msg;
+  document.getElementById("score-sub").textContent = sub;
+
+  // Per-category stats
+  const catList = document.getElementById("cat-stats-list");
+  catList.innerHTML = "";
+  Object.keys(CATEGORIES).forEach(catKey => {
+    const cat = CATEGORIES[catKey];
+    const catAnswers = answers.filter(a => a.cat === catKey);
+    if (catAnswers.length === 0) return;
+    const catCorrect = catAnswers.filter(a => a.isCorrect).length;
+    const catPct = Math.round((catCorrect / catAnswers.length) * 100);
+
+    const row = document.createElement("div");
+    row.className = "cat-row";
+    row.innerHTML = `
+      <div class="cat-row-top">
+        <span class="tagname">${cat.emoji} ${cat.name}</span>
+        <span>${catCorrect}/${catAnswers.length}</span>
+      </div>
+      <div class="cat-bar-bg">
+        <div class="cat-bar-fill" style="width:${catPct}%; background:${cat.color};"></div>
+      </div>
+    `;
+    catList.appendChild(row);
+  });
+
+  // Review list
+  const reviewList = document.getElementById("review-list");
+  reviewList.innerHTML = "";
+  answers.forEach((a, idx) => {
+    const cat = CATEGORIES[a.cat];
+    const item = document.createElement("div");
+    item.className = "review-item " + (a.isCorrect ? "ok" : "no");
+    item.innerHTML = `
+      <div class="q">${idx + 1}. ${cat.emoji} ${a.question}</div>
+      <div class="a">${a.isCorrect ? "✅ Respondiste correctamente: " + a.opts[a.correctIdx] : "❌ Respondiste: " + a.opts[a.picked] + " — Correcta: " + a.opts[a.correctIdx]}</div>
+    `;
+    reviewList.appendChild(item);
+  });
+}
+</script>
+</body>
+</html>
