@@ -495,7 +495,7 @@ const CATEGORIES = {
   naruto:     { name: "Naruto",               emoji: "🍥", color: "#e0692c" },
 };
 
-const QUESTIONS = [
+const QUESTIONS_MASTER = [
   // ---- POKÉMON ----
   { cat:"pokemon", type:"mc", q:"¿Cuál es el número de Pokédex Nacional de Mew?", opts:["150","151","152","249"], correct:1 },
   { cat:"pokemon", type:"vf", q:"Mewtwo fue creado a partir de fósiles de Mew descubiertos en Kanto.", correct:false },
@@ -552,13 +552,23 @@ const QUESTIONS = [
 ];
 
 // Normalize VF questions to have opts/correct index like MC
-QUESTIONS.forEach(q => {
+QUESTIONS_MASTER.forEach(q => {
   if (q.type === "vf") {
     q.opts = ["Verdadero", "Falso"];
     q.correct = q.correct ? 0 : 1;
   }
 });
 
+function shuffle(arr){
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+let QUESTIONS = shuffle(QUESTIONS_MASTER);
 let current = 0;
 let answers = []; // { picked, correct, isCorrect }
 let locked = false;
@@ -577,6 +587,7 @@ const feedback = document.getElementById("feedback");
 const btnNext = document.getElementById("btn-next");
 
 document.getElementById("btn-start").addEventListener("click", () => {
+  QUESTIONS = shuffle(QUESTIONS_MASTER);
   screenStart.classList.add("hidden");
   screenQuiz.classList.remove("hidden");
   startTime = Date.now();
